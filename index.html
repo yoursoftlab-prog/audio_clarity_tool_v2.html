@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-HHK143HFWT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-HHK143HFWT');
+</script>
+<meta charset="UTF-8">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans,sans-serif);color:var(--color-text-primary);background:transparent;padding:1rem}
+h1{font-size:20px;font-weight:500;margin-bottom:4px}
+.sub{font-size:14px;color:var(--color-text-secondary);margin-bottom:1.5rem}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+.section-label{font-size:12px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.75rem}
+.tabs{display:flex;gap:8px;margin-bottom:1.25rem}
+.tab{flex:1;padding:8px;border:0.5px solid var(--color-border-secondary);border-radius:8px;background:transparent;color:var(--color-text-secondary);font-size:14px;cursor:pointer;transition:all .15s}
+.tab.active{background:var(--color-background-secondary);color:var(--color-text-primary);border-color:var(--color-border-primary)}
+.tab:hover:not(.active){background:var(--color-background-secondary)}
+.upload-zone{border:1.5px dashed var(--color-border-secondary);border-radius:10px;padding:2rem;text-align:center;cursor:pointer;transition:all .15s;margin-bottom:1rem}
+.upload-zone:hover{background:var(--color-background-secondary);border-color:var(--color-border-primary)}
+.upload-zone i{font-size:32px;color:var(--color-text-tertiary);display:block;margin-bottom:.5rem}
+.upload-zone p{font-size:14px;color:var(--color-text-secondary)}
+.upload-zone small{font-size:12px;color:var(--color-text-tertiary)}
+#fileInput{display:none}
+.record-btn{width:100%;padding:12px;border:0.5px solid var(--color-border-secondary);border-radius:8px;background:transparent;color:var(--color-text-primary);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s}
+.record-btn:hover{background:var(--color-background-secondary)}
+.record-btn.recording{border-color:#E24B4A;color:#E24B4A;animation:pulse 1.2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.slider-row{display:flex;align-items:center;gap:10px;margin-bottom:.85rem}
+.slider-label{font-size:13px;color:var(--color-text-secondary);width:130px;flex-shrink:0}
+.slider-row input[type=range]{flex:1}
+.slider-val{font-size:13px;font-weight:500;min-width:36px;text-align:right}
+.waveform-wrap{position:relative;height:80px;background:var(--color-background-secondary);border-radius:8px;overflow:hidden;margin-bottom:1rem}
+canvas.wave{width:100%;height:100%}
+.controls{display:flex;gap:8px;align-items:center;margin-bottom:.75rem}
+.play-btn{padding:8px 16px;border:0.5px solid var(--color-border-secondary);border-radius:8px;background:transparent;color:var(--color-text-primary);font-size:14px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s}
+.play-btn:hover{background:var(--color-background-secondary)}
+.play-btn:disabled{opacity:.4;cursor:not-allowed}
+.time-info{font-size:12px;color:var(--color-text-secondary);margin-left:auto}
+.process-btn{width:100%;padding:11px;border:0.5px solid var(--color-border-secondary);border-radius:8px;background:transparent;color:var(--color-text-primary);font-size:15px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s;margin-bottom:.75rem}
+.process-btn:hover:not(:disabled){background:var(--color-background-secondary)}
+.process-btn:disabled{opacity:.4;cursor:not-allowed}
+.download-btn{width:100%;padding:11px;border:0.5px solid var(--color-border-secondary);border-radius:8px;background:transparent;color:var(--color-text-primary);font-size:15px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s}
+.download-btn:hover:not(:disabled){background:var(--color-background-secondary)}
+.download-btn:disabled{opacity:.4;cursor:not-allowed}
+.status{font-size:13px;color:var(--color-text-secondary);text-align:center;padding:.5rem;min-height:1.5rem}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:3px 8px;border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary)}
+.badge.active{background:#EAF3DE;color:#3B6D11;border-color:#C0DD97}
+.badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem}
+.progress-bar{height:4px;border-radius:2px;background:var(--color-background-secondary);overflow:hidden;margin:.5rem 0}
+.progress-fill{height:100%;background:#1D9E75;width:0%;transition:width .2s;border-radius:2px}
+.compare-toggle{display:flex;gap:8px;margin-bottom:.75rem}
+.compare-btn{flex:1;padding:6px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:transparent;color:var(--color-text-secondary);font-size:13px;cursor:pointer;transition:all .15s}
+.compare-btn.active{background:var(--color-background-secondary);color:var(--color-text-primary);border-color:var(--color-border-primary)}
+.auto-enhance-btn{width:100%;padding:11px;border:0.5px solid #534AB7;border-radius:8px;background:linear-gradient(135deg,rgba(83,74,183,0.10) 0%,rgba(29,158,117,0.10) 100%);color:var(--color-text-primary);font-size:15px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;margin-bottom:.75rem;position:relative;overflow:hidden}
+.auto-enhance-btn:hover:not(:disabled){background:linear-gradient(135deg,rgba(83,74,183,0.18) 0%,rgba(29,158,117,0.18) 100%);}
+.auto-enhance-btn:disabled{opacity:.4;cursor:not-allowed}
+.auto-enhance-btn .btn-glow{position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent);transform:translateX(-100%);transition:transform .6s}
+.auto-enhance-btn:hover .btn-glow{transform:translateX(100%)}
+.auto-result{font-size:12px;color:var(--color-text-tertiary);text-align:center;padding:.25rem .5rem;min-height:1.2rem;font-style:italic}
+.preset-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.75rem}
+.preset-chip{padding:4px 10px;border:0.5px solid var(--color-border-secondary);border-radius:20px;background:transparent;color:var(--color-text-secondary);font-size:12px;cursor:pointer;transition:all .15s}
+.preset-chip:hover{background:var(--color-background-secondary);color:var(--color-text-primary)}
+.preset-chip.active{background:var(--color-background-secondary);color:var(--color-text-primary);border-color:var(--color-border-primary)}
+</style>
+</head>
+<body>
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">Audio Noise Remover and Enhancer — upload or record audio, adjust filters, process and download clean audio</h2>
+
+<h1><i class="ti ti-microphone-2" aria-hidden="true" style="font-size:20px;vertical-align:-2px;margin-right:6px"></i>Audio Clarity Tool <span style="font-size:12px;font-weight:500;padding:2px 8px;border-radius:6px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);vertical-align:middle;margin-left:4px">v2</span></h1>
+<p class="sub">Remove noise & enhance sound — runs entirely in your browser</p>
+
+<div class="card">
+  <div class="tabs">
+    <button class="tab active" id="tabUpload" onclick="switchTab('upload')"><i class="ti ti-upload" aria-hidden="true"></i> Upload file</button>
+    <button class="tab" id="tabRecord" onclick="switchTab('record')"><i class="ti ti-microphone" aria-hidden="true"></i> Record live</button>
+  </div>
+
+  <div id="panelUpload">
+    <div class="upload-zone" onclick="document.getElementById('fileInput').click()" id="dropZone">
+      <i class="ti ti-file-music" aria-hidden="true"></i>
+      <p>Click to upload or drag & drop</p>
+      <small>MP3, WAV, OGG, M4A, FLAC supported</small>
+    </div>
+    <input type="file" id="fileInput" accept="audio/*">
+  </div>
+
+  <div id="panelRecord" style="display:none">
+    <button class="record-btn" id="recordBtn" onclick="toggleRecord()">
+      <i class="ti ti-player-record" id="recIcon" aria-hidden="true"></i>
+      <span id="recLabel">Start recording</span>
+    </button>
+    <p style="font-size:12px;color:var(--color-text-tertiary);text-align:center;margin-top:.5rem" id="recTimer"></p>
+  </div>
+</div>
+
+<div class="card" id="audioCard" style="display:none">
+  <p class="section-label">Audio</p>
+  <div class="waveform-wrap">
+    <canvas class="wave" id="waveCanvas"></canvas>
+  </div>
+  <div class="controls">
+    <button class="play-btn" id="playOrig" onclick="playAudio('orig')"><i class="ti ti-player-play" aria-hidden="true"></i> Original</button>
+    <button class="play-btn" id="playProc" onclick="playAudio('proc')" disabled><i class="ti ti-player-play" aria-hidden="true"></i> Enhanced</button>
+    <span class="time-info" id="timeInfo">0:00</span>
+  </div>
+  <div class="compare-toggle" id="compareToggle" style="display:none">
+    <button class="compare-btn active" id="cmpOrig" onclick="setCompare('orig')"><i class="ti ti-volume" aria-hidden="true"></i> Before</button>
+    <button class="compare-btn" id="cmpProc" onclick="setCompare('proc')"><i class="ti ti-sparkles" aria-hidden="true"></i> After</button>
+  </div>
+</div>
+
+<div class="card">
+  <p class="section-label">Enhancement settings</p>
+  <div class="badges" id="activeBadges">
+    <span class="badge active" id="b-noise"><i class="ti ti-wave-sine" aria-hidden="true"></i> Noise gate</span>
+    <span class="badge active" id="b-eq"><i class="ti ti-adjustments-horizontal" aria-hidden="true"></i> EQ boost</span>
+    <span class="badge active" id="b-comp"><i class="ti ti-arrows-up-down" aria-hidden="true"></i> Compressor</span>
+    <span class="badge active" id="b-hp"><i class="ti ti-filter" aria-hidden="true"></i> Highpass filter</span>
+  </div>
+
+  <div class="slider-row">
+    <span class="slider-label">Noise reduction</span>
+    <input type="range" min="0" max="100" value="70" step="1" id="noiseSlider" oninput="updateVal('noiseSlider','noiseVal')">
+    <span class="slider-val" id="noiseVal">70%</span>
+  </div>
+  <div class="slider-row">
+    <span class="slider-label">Voice clarity</span>
+    <input type="range" min="0" max="100" value="60" step="1" id="claritySlider" oninput="updateVal('claritySlider','clarityVal')">
+    <span class="slider-val" id="clarityVal">60%</span>
+  </div>
+  <div class="slider-row">
+    <span class="slider-label">Bass warmth</span>
+    <input type="range" min="0" max="100" value="40" step="1" id="bassSlider" oninput="updateVal('bassSlider','bassVal')">
+    <span class="slider-val" id="bassVal">40%</span>
+  </div>
+  <div class="slider-row">
+    <span class="slider-label">Volume boost</span>
+    <input type="range" min="0" max="100" value="50" step="1" id="gainSlider" oninput="updateVal('gainSlider','gainVal')">
+    <span class="slider-val" id="gainVal">50%</span>
+  </div>
+  <div class="slider-row">
+    <span class="slider-label">Highpass cutoff</span>
+    <input type="range" min="60" max="500" value="120" step="10" id="hpSlider" oninput="updateVal('hpSlider','hpVal','Hz')">
+    <span class="slider-val" id="hpVal">120Hz</span>
+  </div>
+
+  <div style="border-top:0.5px solid var(--color-border-tertiary);margin:.75rem 0 .85rem"></div>
+  <p class="section-label" style="display:flex;align-items:center;gap:6px"><i class="ti ti-brand-soundcloud" aria-hidden="true"></i> Voice to bass</p>
+
+  <div class="slider-row">
+    <span class="slider-label">Pitch shift</span>
+    <input type="range" min="-24" max="0" value="-10" step="1" id="pitchSlider" oninput="updateVal('pitchSlider','pitchVal',' st')">
+    <span class="slider-val" id="pitchVal">-10 st</span>
+  </div>
+  <div class="slider-row">
+    <span class="slider-label">Bass depth</span>
+    <input type="range" min="0" max="100" value="70" step="1" id="bassDepthSlider" oninput="updateVal('bassDepthSlider','bassDepthVal')">
+    <span class="slider-val" id="bassDepthVal">70%</span>
+  </div>
+  <div class="slider-row">
+    <span class="slider-label">Growl / roughness</span>
+    <input type="range" min="0" max="100" value="30" step="1" id="growlSlider" oninput="updateVal('growlSlider','growlVal')">
+    <span class="slider-val" id="growlVal">30%</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:.5rem">
+    <label style="font-size:13px;color:var(--color-text-secondary);cursor:pointer;display:flex;align-items:center;gap:6px">
+      <input type="checkbox" id="bassEnable" checked style="accent-color:#534AB7;width:15px;height:15px"> Enable voice-to-bass
+    </label>
+  </div>
+</div>
+
+<div class="card">
+  <p class="section-label" style="margin-bottom:.5rem">Quick presets</p>
+  <div class="preset-chips">
+    <button class="preset-chip active" id="preset-voice" onclick="applyPreset('voice')">🎙 Voice / Podcast</button>
+    <button class="preset-chip" id="preset-music" onclick="applyPreset('music')">🎵 Music</button>
+    <button class="preset-chip" id="preset-call" onclick="applyPreset('call')">📞 Call recording</button>
+    <button class="preset-chip" id="preset-outdoor" onclick="applyPreset('outdoor')">🌿 Outdoor / Wind</button>
+  </div>
+
+  <button class="auto-enhance-btn" id="autoEnhanceBtn" onclick="autoEnhance()" disabled>
+    <span class="btn-glow"></span>
+    <i class="ti ti-wand" aria-hidden="true"></i> ✨ Auto Enhance
+  </button>
+  <p class="auto-result" id="autoResult"></p>
+
+  <button class="process-btn" id="processBtn" onclick="processAudio()" disabled>
+    <i class="ti ti-sparkles" aria-hidden="true"></i> Process & enhance
+  </button>
+  <div class="progress-bar" id="progressBar" style="display:none"><div class="progress-fill" id="progressFill"></div></div>
+  <p class="status" id="statusMsg">Load or record audio to begin</p>
+  <button class="download-btn" id="downloadBtn" onclick="downloadAudio()" disabled>
+    <i class="ti ti-download" aria-hidden="true"></i> Download enhanced audio
+  </button>
+</div>
+
+<script>
+let audioCtx, origBuffer, procBuffer, activeSource, isRecording=false, mediaRec, recChunks=[], recInterval;
+let currentPlay='orig';
+
+function switchTab(t){
+  document.getElementById('tabUpload').classList.toggle('active',t==='upload');
+  document.getElementById('tabRecord').classList.toggle('active',t==='record');
+  document.getElementById('panelUpload').style.display=t==='upload'?'block':'none';
+  document.getElementById('panelRecord').style.display=t==='record'?'block':'none';
+}
+
+function updateVal(sid,vid,suffix='%'){
+  document.getElementById(vid).textContent=document.getElementById(sid).value+suffix;
+}
+
+function getAudioCtx(){
+  if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+  return audioCtx;
+}
+
+document.getElementById('fileInput').addEventListener('change',e=>{
+  const f=e.target.files[0];
+  if(f) loadFile(f);
+});
+
+const dz=document.getElementById('dropZone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.style.background='var(--color-background-secondary)'});
+dz.addEventListener('dragleave',()=>dz.style.background='');
+dz.addEventListener('drop',e=>{e.preventDefault();dz.style.background='';const f=e.dataTransfer.files[0];if(f)loadFile(f);});
+
+function loadFile(f){
+  const reader=new FileReader();
+  reader.onload=async ev=>{
+    try{
+      const ctx=getAudioCtx();
+      origBuffer=await ctx.decodeAudioData(ev.target.result.slice(0));
+      procBuffer=null;
+      setStatus('Audio loaded: '+f.name.substring(0,30)+(f.name.length>30?'...':''));
+      showAudioCard();
+      drawWave(origBuffer,'#1D9E75');
+      document.getElementById('processBtn').disabled=false;
+      document.getElementById('autoEnhanceBtn').disabled=false;
+      document.getElementById('playProc').disabled=true;
+      document.getElementById('downloadBtn').disabled=true;
+      document.getElementById('compareToggle').style.display='none';
+      document.getElementById('autoResult').textContent='';
+    }catch(er){setStatus('Error loading file. Try a different format.');}
+  };
+  reader.readAsArrayBuffer(f);
+}
+
+async function toggleRecord(){
+  if(!isRecording){
+    try{
+      const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+      mediaRec=new MediaRecorder(stream);
+      recChunks=[];
+      mediaRec.ondataavailable=e=>recChunks.push(e.data);
+      mediaRec.onstop=async()=>{
+        const blob=new Blob(recChunks,{type:'audio/webm'});
+        stream.getTracks().forEach(t=>t.stop());
+        const ab=await blob.arrayBuffer();
+        try{
+          const ctx=getAudioCtx();
+          origBuffer=await ctx.decodeAudioData(ab);
+          procBuffer=null;
+          setStatus('Recording loaded — '+origBuffer.duration.toFixed(1)+'s');
+          showAudioCard();
+          drawWave(origBuffer,'#1D9E75');
+          document.getElementById('processBtn').disabled=false;
+          document.getElementById('autoEnhanceBtn').disabled=false;
+          document.getElementById('playProc').disabled=true;
+          document.getElementById('downloadBtn').disabled=true;
+          document.getElementById('compareToggle').style.display='none';
+          document.getElementById('autoResult').textContent='';
+        }catch(er){setStatus('Could not decode recording.');}
+      };
+      mediaRec.start();
+      isRecording=true;
+      let secs=0;
+      recInterval=setInterval(()=>{secs++;document.getElementById('recTimer').textContent='Recording... '+secs+'s';},1000);
+      document.getElementById('recordBtn').classList.add('recording');
+      document.getElementById('recIcon').className='ti ti-player-stop';
+      document.getElementById('recLabel').textContent='Stop recording';
+    }catch(er){setStatus('Microphone access denied.');}
+  } else {
+    mediaRec.stop();
+    isRecording=false;
+    clearInterval(recInterval);
+    document.getElementById('recTimer').textContent='';
+    document.getElementById('recordBtn').classList.remove('recording');
+    document.getElementById('recIcon').className='ti ti-player-record';
+    document.getElementById('recLabel').textContent='Start recording';
+  }
+}
+
+function showAudioCard(){
+  document.getElementById('audioCard').style.display='block';
+}
+
+function drawWave(buf,color){
+  const canvas=document.getElementById('waveCanvas');
+  const W=canvas.width=canvas.offsetWidth||600;
+  const H=canvas.height=canvas.offsetHeight||80;
+  const ctx2=canvas.getContext('2d');
+  ctx2.clearRect(0,0,W,H);
+  const data=buf.getChannelData(0);
+  const step=Math.ceil(data.length/W);
+  ctx2.strokeStyle=color||'#1D9E75';
+  ctx2.lineWidth=1;
+  ctx2.beginPath();
+  for(let i=0;i<W;i++){
+    let mn=0,mx=0;
+    for(let j=0;j<step;j++){const v=data[i*step+j]||0;if(v<mn)mn=v;if(v>mx)mx=v;}
+    ctx2.moveTo(i,H/2+mn*H/2*0.9);
+    ctx2.lineTo(i,H/2+mx*H/2*0.9);
+  }
+  ctx2.stroke();
+}
+
+async function autoEnhance(){
+  if(!origBuffer){setStatus('No audio loaded.');return;}
+  const btn=document.getElementById('autoEnhanceBtn');
+  btn.disabled=true;
+  document.getElementById('processBtn').disabled=true;
+  setStatus('Analysing audio...');
+
+  const prog=document.getElementById('autoEnhanceProgress');
+  const fill=document.getElementById('autoEnhanceProgressFill');
+  prog.style.display='block';
+  fill.style.width='0%';
+
+  await new Promise(r=>setTimeout(r,60));
+
+  // ── Analyse the raw audio ─────────────────────────────────────────────────
+  const data=origBuffer.getChannelData(0);
+  const len=data.length;
+  const sr=origBuffer.sampleRate;
+
+  fill.style.width='20%';
+  await new Promise(r=>setTimeout(r,60));
+
+  // RMS (overall loudness)
+  let sumSq=0;
+  for(let i=0;i<len;i++) sumSq+=data[i]*data[i];
+  const rms=Math.sqrt(sumSq/len);
+
+  // Peak amplitude
+  let peak=0;
+  for(let i=0;i<len;i++) if(Math.abs(data[i])>peak) peak=Math.abs(data[i]);
+
+  // Dynamic range (rough estimate via std dev above RMS)
+  let sumDev=0;
+  for(let i=0;i<len;i++){const d=Math.abs(Math.abs(data[i])-rms);sumDev+=d*d;}
+  const dynRange=Math.sqrt(sumDev/len);
+
+  fill.style.width='45%';
+  await new Promise(r=>setTimeout(r,60));
+
+  // Zero-crossing rate (speech/noise indicator)
+  let zc=0;
+  for(let i=1;i<len;i++) if(data[i]*data[i-1]<0) zc++;
+  const zcr=zc/len;
+
+  // Low-energy ratio (silence / noise-floor fraction)
+  const frameSize=Math.floor(sr*0.02);
+  let lowEnergyFrames=0, totalFrames=0;
+  for(let start=0;start<len-frameSize;start+=frameSize){
+    let fe=0;
+    for(let j=0;j<frameSize;j++) fe+=data[start+j]*data[start+j];
+    fe/=frameSize;
+    if(fe<rms*rms*0.25) lowEnergyFrames++;
+    totalFrames++;
+  }
+  const lowRatio=lowEnergyFrames/Math.max(1,totalFrames);
+
+  fill.style.width='70%';
+  await new Promise(r=>setTimeout(r,60));
+
+  // ── Derive optimal settings ───────────────────────────────────────────────
+  // Noise reduction: more when low-energy ratio is high (noisy recording)
+  const noiseOpt=Math.round(Math.min(95, 50 + lowRatio*80));
+
+  // Voice clarity: higher when ZCR suggests speech
+  const clarityOpt=Math.round(Math.min(90, 40 + zcr*1200));
+
+  // Bass warmth: reduce if recording already has strong low-end (low ZCR)
+  const bassOpt=Math.round(Math.max(15, Math.min(70, 60 - zcr*600)));
+
+  // Volume boost: normalise toward 0.7 peak
+  const gainOpt=Math.round(Math.min(95, Math.max(20, (0.7/Math.max(peak,0.01))*50)));
+
+  // Highpass cutoff: higher cutoff for very low-ZCR (rumble-heavy) audio
+  const hpOpt=Math.round(Math.max(60, Math.min(300, 80 + (1-zcr*20)*80)));
+
+  // Profile label
+  let profile='Balanced';
+  if(rms<0.05) profile='Quiet Recording';
+  else if(rms>0.25) profile='Loud/Clipped';
+  else if(lowRatio>0.5) profile='Noisy Background';
+  else if(zcr*sr>3000) profile='Speech/Voice';
+  else if(zcr*sr<800) profile='Music/Instrument';
+
+  fill.style.width='88%';
+  await new Promise(r=>setTimeout(r,60));
+
+  // ── Apply settings ────────────────────────────────────────────────────────
+  function setSlider(id,valId,val,suffix='%'){
+    document.getElementById(id).value=val;
+    document.getElementById(valId).textContent=val+suffix;
+  }
+  setSlider('noiseSlider','noiseVal',noiseOpt);
+  setSlider('claritySlider','clarityVal',clarityOpt);
+  setSlider('bassSlider','bassVal',bassOpt);
+  setSlider('gainSlider','gainVal',gainOpt);
+  setSlider('hpSlider','hpVal',hpOpt,'Hz');
+
+  fill.style.width='100%';
+  await new Promise(r=>setTimeout(r,180));
+  prog.style.display='none';
+
+  // ── Show analysis card ────────────────────────────────────────────────────
+  const grid=document.getElementById('analysisGrid');
+  function row(label,val){return`<div class="analysis-item"><span>${label}</span><strong>${val}</strong></div>`;}
+  grid.innerHTML=
+    row('Profile',profile)+
+    row('Duration',origBuffer.duration.toFixed(1)+'s')+
+    row('RMS level',(rms*100).toFixed(1)+'%')+
+    row('Peak',(peak*100).toFixed(0)+'%')+
+    row('Noise floor',lowRatio>0.6?'High':lowRatio>0.3?'Medium':'Low')+
+    row('ZCR',Math.round(zcr*sr)+' /s');
+  document.getElementById('analysisCard').style.display='block';
+
+  btn.disabled=false;
+  document.getElementById('processBtn').disabled=false;
+  setStatus('✦ Settings auto-tuned for "'+profile+'" — click Process to apply');
+}
+
+async function processAudio(){
+  if(!origBuffer){setStatus('No audio loaded.');return;}
+  const ctx=getAudioCtx();
+  const noiseAmt=parseInt(document.getElementById('noiseSlider').value)/100;
+  const clarity=parseInt(document.getElementById('claritySlider').value)/100;
+  const bass=parseInt(document.getElementById('bassSlider').value)/100;
+  const gainAmt=parseInt(document.getElementById('gainSlider').value)/100;
+  const hpFreq=parseInt(document.getElementById('hpSlider').value);
+
+  setStatus('Processing...');
+  showProgress(0);
+  document.getElementById('processBtn').disabled=true;
+
+  await new Promise(r=>setTimeout(r,80));
+  showProgress(20);
+
+  const len=origBuffer.length;
+  const sr=origBuffer.sampleRate;
+  const ch=origBuffer.numberOfChannels;
+  const out=ctx.createBuffer(ch,len,sr);
+
+  for(let c=0;c<ch;c++){
+    const inp=origBuffer.getChannelData(c);
+    const outp=out.getChannelData(c);
+    
+    // noise gate threshold
+    const noiseThresh=noiseAmt*0.04;
+    // highpass filter (simple single-pole)
+    const rc=1/(2*Math.PI*hpFreq);
+    const dt=1/sr;
+    const alpha=rc/(rc+dt);
+    let prev=0,prevIn=0;
+    
+    // compressor params
+    const threshold=0.5;
+    const ratio=3+clarity*5;
+    const gainBoost=0.8+gainAmt*1.4;
+    const bassGain=1+bass*1.2;
+
+    showProgress(20+Math.round((c/ch)*50));
+
+    for(let i=0;i<len;i++){
+      let s=inp[i];
+
+      // highpass filter
+      const hp=alpha*(prev+s-prevIn);
+      prevIn=s; prev=hp;
+      s=hp;
+
+      // noise gate
+      if(Math.abs(s)<noiseThresh) s*=(Math.abs(s)/noiseThresh);
+
+      // voice presence boost (2–4kHz range approximation via simple emphasis)
+      // bass warmth: blend some low-frequency back
+      if(i>0){
+        const lowComp=inp[i]*bass*0.3+inp[i>0?i-1:0]*(1-bass)*0.3;
+        s+=lowComp*0.15*bassGain;
+      }
+
+      // compressor
+      const absS=Math.abs(s);
+      if(absS>threshold){
+        const excess=absS-threshold;
+        const compressed=threshold+excess/ratio;
+        s=s<0?-compressed:compressed;
+      }
+
+      // gain
+      s*=gainBoost;
+
+      // soft clip
+      s=Math.tanh(s*0.9);
+
+      outp[i]=s;
+    }
+  }
+
+  showProgress(80);
+  await new Promise(r=>setTimeout(r,50));
+
+  // Voice-to-bass effect
+  const bassEnable=document.getElementById('bassEnable').checked;
+  if(bassEnable){
+    const pitchSt=parseInt(document.getElementById('pitchSlider').value);
+    const bassDepth=parseInt(document.getElementById('bassDepthSlider').value)/100;
+    const growl=parseInt(document.getElementById('growlSlider').value)/100;
+    const pitchRatio=Math.pow(2,pitchSt/12);
+    const bassOut=ctx.createBuffer(ch,len,sr);
+
+    for(let c=0;c<ch;c++){
+      const src=out.getChannelData(c);
+      const dst=bassOut.getChannelData(c);
+      // Resample-based pitch shift (simple interpolation)
+      for(let i=0;i<len;i++){
+        const srcIdx=i*pitchRatio;
+        const lo=Math.floor(srcIdx);
+        const hi=lo+1;
+        const frac=srcIdx-lo;
+        const a=lo<len?src[lo]:0;
+        const b=hi<len?src[hi]:0;
+        let s=a+(b-a)*frac;
+        // bass boost: boost sub-bass freqs via simple low-shelf approx
+        if(i>1){
+          const prev2=lo>1?src[lo-2]:0;
+          s+=prev2*bassDepth*0.6;
+        }
+        // growl: soft waveshaping distortion
+        if(growl>0){
+          const drive=1+growl*6;
+          s=Math.tanh(s*drive)/Math.tanh(drive);
+        }
+        // low-pass to keep it bassy (cutoff ~300Hz approx)
+        if(i>0){
+          const lp_alpha=0.15+bassDepth*0.1;
+          s=s*lp_alpha+dst[i-1]*(1-lp_alpha);
+        }
+        dst[i]=s;
+      }
+    }
+    procBuffer=bassOut;
+  } else {
+    procBuffer=out;
+  }
+  drawWave(procBuffer,'#534AB7');
+  showProgress(100);
+  setTimeout(()=>{
+    document.getElementById('progressBar').style.display='none';
+    setStatus('Enhanced! Play both versions to compare.');
+    document.getElementById('processBtn').disabled=false;
+    document.getElementById('playProc').disabled=false;
+    document.getElementById('downloadBtn').disabled=false;
+    document.getElementById('compareToggle').style.display='flex';
+  },300);
+}
+
+function showProgress(pct){
+  const bar=document.getElementById('progressBar');
+  bar.style.display='block';
+  document.getElementById('progressFill').style.width=pct+'%';
+}
+
+function playAudio(which){
+  if(activeSource){try{activeSource.stop();}catch(e){}}
+  const buf=which==='orig'?origBuffer:procBuffer;
+  if(!buf) return;
+  const ctx=getAudioCtx();
+  activeSource=ctx.createBufferSource();
+  activeSource.buffer=buf;
+  activeSource.connect(ctx.destination);
+  activeSource.start();
+  currentPlay=which;
+  let start=Date.now();
+  const dur=buf.duration;
+  const ti=document.getElementById('timeInfo');
+  const iv=setInterval(()=>{
+    const el=(Date.now()-start)/1000;
+    if(el>=dur){clearInterval(iv);ti.textContent=fmt(dur);return;}
+    ti.textContent=fmt(el)+' / '+fmt(dur);
+  },200);
+  activeSource.onended=()=>clearInterval(iv);
+}
+
+function setCompare(w){
+  document.getElementById('cmpOrig').classList.toggle('active',w==='orig');
+  document.getElementById('cmpProc').classList.toggle('active',w==='proc');
+  if(w==='orig') drawWave(origBuffer,'#1D9E75');
+  else if(procBuffer) drawWave(procBuffer,'#534AB7');
+}
+
+function fmt(s){const m=Math.floor(s/60);const sec=Math.floor(s%60);return m+':'+(sec<10?'0':'')+sec;}
+
+function downloadAudio(){
+  if(!procBuffer){setStatus('Process audio first.');return;}
+  const ctx=getAudioCtx();
+  const len=procBuffer.length;
+  const ch=procBuffer.numberOfChannels;
+  const sr=procBuffer.sampleRate;
+  const wavBuf=encodeWAV(procBuffer,sr,ch,len);
+  const blob=new Blob([wavBuf],{type:'audio/wav'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='enhanced_audio.wav';
+  a.click();
+}
+
+function encodeWAV(abuf,sr,ch,len){
+  const bpS=16,bpC=bpS/8;
+  const byteRate=sr*ch*bpC;
+  const blockAlign=ch*bpC;
+  const dataLen=len*ch*bpC;
+  const buf=new ArrayBuffer(44+dataLen);
+  const v=new DataView(buf);
+  function ws(o,s){for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i));}
+  ws(0,'RIFF');v.setUint32(4,36+dataLen,true);ws(8,'WAVE');ws(12,'fmt ');
+  v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,ch,true);
+  v.setUint32(24,sr,true);v.setUint32(28,byteRate,true);v.setUint16(32,blockAlign,true);
+  v.setUint16(34,bpS,true);ws(36,'data');v.setUint32(40,dataLen,true);
+  let off=44;
+  for(let i=0;i<len;i++){
+    for(let c=0;c<ch;c++){
+      let s=Math.max(-1,Math.min(1,abuf.getChannelData(c)[i]));
+      v.setInt16(off,s<0?s*0x8000:s*0x7FFF,true);off+=2;
+    }
+  }
+  return buf;
+}
+
+function setStatus(msg){document.getElementById('statusMsg').textContent=msg;}
+
+// ── Preset definitions ──────────────────────────────────────────────────────
+const PRESETS = {
+  voice:   { noise:72, clarity:75, bass:30, gain:55, hp:120, pitch:-10, bassDepth:70, growl:30, bassEnable:true  },
+  music:   { noise:35, clarity:45, bass:60, gain:50, hp: 60, pitch:-10, bassDepth:70, growl:30, bassEnable:false },
+  call:    { noise:85, clarity:80, bass:20, gain:65, hp:180, pitch:-10, bassDepth:70, growl:30, bassEnable:true  },
+  outdoor: { noise:90, clarity:65, bass:25, gain:60, hp:200, pitch:-10, bassDepth:70, growl:30, bassEnable:true  },
+};
+
+function applyPreset(name){
+  const p = PRESETS[name];
+  if(!p) return;
+  const set = (id,v,vid,suffix='%') => {
+    document.getElementById(id).value = v;
+    if(vid) document.getElementById(vid).textContent = v + suffix;
+  };
+  set('noiseSlider',   p.noise,     'noiseVal');
+  set('claritySlider', p.clarity,   'clarityVal');
+  set('bassSlider',    p.bass,      'bassVal');
+  set('gainSlider',    p.gain,      'gainVal');
+  set('hpSlider',      p.hp,        'hpVal','Hz');
+  set('pitchSlider',   p.pitch,     'pitchVal',' st');
+  set('bassDepthSlider',p.bassDepth,'bassDepthVal');
+  set('growlSlider',   p.growl,     'growlVal');
+  document.getElementById('bassEnable').checked = p.bassEnable;
+  document.querySelectorAll('.preset-chip').forEach(c=>c.classList.remove('active'));
+  document.getElementById('preset-'+name).classList.add('active');
+  document.getElementById('autoResult').textContent = '';
+}
+
+// ── Auto Enhance ────────────────────────────────────────────────────────────
+async function autoEnhance(){
+  if(!origBuffer){ setStatus('Load audio first.'); return; }
+  const btn = document.getElementById('autoEnhanceBtn');
+  const resultEl = document.getElementById('autoResult');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="btn-glow"></span><i class="ti ti-loader-2" style="animation:spin 1s linear infinite" aria-hidden="true"></i> Analysing…';
+  resultEl.textContent = '';
+
+  await new Promise(r=>setTimeout(r,30));
+
+  // ── Analysis ──────────────────────────────────────────────────────────────
+  const data = origBuffer.getChannelData(0);
+  const sr   = origBuffer.sampleRate;
+  const len  = data.length;
+
+  // 1. RMS loudness
+  let sumSq = 0;
+  for(let i=0;i<len;i++) sumSq += data[i]*data[i];
+  const rms = Math.sqrt(sumSq/len);
+
+  // 2. Peak amplitude
+  let peak = 0;
+  for(let i=0;i<len;i++) if(Math.abs(data[i])>peak) peak=Math.abs(data[i]);
+
+  // 3. Noise floor estimate (quietest 10% of 50ms frames)
+  const frameSize = Math.round(sr*0.05);
+  const frameRMS = [];
+  for(let f=0;f<Math.floor(len/frameSize);f++){
+    let s=0; for(let k=0;k<frameSize;k++) s+=data[f*frameSize+k]**2;
+    frameRMS.push(Math.sqrt(s/frameSize));
+  }
+  frameRMS.sort((a,b)=>a-b);
+  const noiseFloor = frameRMS[Math.floor(frameRMS.length*0.1)] || 0.001;
+
+  // 4. Rough spectral balance via comparing low (0–500Hz) vs high (2–8kHz) energy
+  // Using simple frame difference as proxy for high-freq content
+  let lowEnergy=0, highEnergy=0;
+  for(let i=1;i<len;i++){
+    const diff = data[i]-data[i-1]; // high-freq proxy
+    highEnergy += diff*diff;
+    lowEnergy  += data[i]*data[i];
+  }
+  const spectralTilt = highEnergy / (lowEnergy+1e-9); // high value = brighter / more treble
+
+  // 5. Dynamic range
+  const dynRange = peak / (rms+1e-9);
+
+  // ── Decision logic ────────────────────────────────────────────────────────
+  // Noise reduction: inversely proportional to SNR
+  const snrProxy = rms / (noiseFloor+1e-9);
+  const noiseVal = Math.round(Math.max(10, Math.min(95, 100 - snrProxy*12)));
+
+  // Voice clarity: boost if rms is low or spectral tilt is low (muddy)
+  const clarityVal = Math.round(Math.max(30, Math.min(90, 50 + (1/spectralTilt)*0.5 + (1-rms)*20)));
+
+  // Bass: reduce if low SNR (noisy), increase if audio is thin
+  const bassVal = Math.round(Math.max(10, Math.min(80, spectralTilt<0.1 ? 55 : 35)));
+
+  // Gain: louder when rms is low
+  const gainVal = Math.round(Math.max(30, Math.min(85, 50 + (0.15-Math.min(rms,0.15))/0.15*35)));
+
+  // Highpass: higher cutoff for noisy / low-SNR audio
+  const hpVal = snrProxy < 5 ? 180 : snrProxy < 15 ? 130 : 90;
+
+  // Apply computed values
+  const setSlider = (id,v,vid,suffix='%') => {
+    document.getElementById(id).value = v;
+    document.getElementById(vid).textContent = v+suffix;
+  };
+  setSlider('noiseSlider',   noiseVal,   'noiseVal');
+  setSlider('claritySlider', clarityVal, 'clarityVal');
+  setSlider('bassSlider',    bassVal,    'bassVal');
+  setSlider('gainSlider',    gainVal,    'gainVal');
+  setSlider('hpSlider',      hpVal,      'hpVal','Hz');
+
+  // Clear active preset chip since we auto-tuned
+  document.querySelectorAll('.preset-chip').forEach(c=>c.classList.remove('active'));
+
+  // Summary
+  const snrLabel = snrProxy>20?'clean':snrProxy>8?'moderate':'noisy';
+  const loudLabel = rms>0.1?'loud':rms>0.03?'medium':'quiet';
+  resultEl.textContent = `Detected ${snrLabel} audio (SNR ≈${snrProxy.toFixed(0)}×), ${loudLabel} level — settings optimised ✓`;
+
+  btn.disabled = false;
+  btn.innerHTML = '<span class="btn-glow"></span><i class="ti ti-wand" aria-hidden="true"></i> ✨ Auto Enhance';
+
+  // Auto-trigger processing
+  await processAudio();
+}
+
+// Add spin keyframe
+const _style = document.createElement('style');
+_style.textContent = '@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}';
+document.head.appendChild(_style);
+</script>
+</body>
+</html>
